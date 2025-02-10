@@ -16,7 +16,7 @@ app.post('/chat', async (req, res) => {
     const { message } = req.body;
     const response = await cohere.chat({
       message: message,
-      model: 'command-r-08-2024'
+      model: 'command'
     });
 
     res.json({ 
