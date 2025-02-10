@@ -14,18 +14,19 @@ app.use(express.json());
 app.post('/chat', async (req, res) => {
   try {
     const { message } = req.body;
-    const response = await cohere.chat({
-      message: message,
-      model: 'command-r-plus-08-2024'
-    });
 
-    res.json({ 
-      reply: response.text 
-    });
+    // Définir un timeout de 20 secondes pour éviter les blocages
+    const response = await Promise.race([
+      cohere.chat({ message, model: 'command-r-plus-08-2024' }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: Cohere API took too long')), 20000)) // 20 sec timeout
+    ]);
+
+    res.json({ reply: response.text });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
